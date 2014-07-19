@@ -114,6 +114,7 @@ class MainWindow:public Gtk::Window
 		void set_information();
 		/**各种模式转换 --- 设置着法按钮可见性*/
 		void set_status();
+		bool confirm_to_resign();
 	public:
 		class Columns:public Gtk::TreeModel::ColumnRecord
 		{

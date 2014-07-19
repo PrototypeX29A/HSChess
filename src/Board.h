@@ -168,6 +168,8 @@ class Board : public Gtk::DrawingArea
 		/** 标识是否网络对战中*/
 		/** check is fight on network */
 		bool is_network_game() { return m_status == NETWORK_STATUS; }
+		/** is a game in progress? */
+		bool game_in_progress() { return m_status == FIGHT_STATUS || m_status == NETWORK_STATUS; }
 		/** 检测是不是当前用户走棋 -- check if the human user going to move */
 		bool is_human_player(){ return m_engine.red_player()-m_human_black ; }
 		bool is_rev_game() { return is_rev_board;}

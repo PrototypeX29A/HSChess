@@ -1023,67 +1023,27 @@ void MainWindow::on_begin_game()
 	btn_begin->set_sensitive(false);
 }
 
+bool MainWindow::confirm_to_resign() {
+		Gtk::MessageDialog dialog(*this, _("be lose"), false,
+															Gtk::MESSAGE_QUESTION,
+															Gtk::BUTTONS_OK_CANCEL);
+		Glib::ustring msg =_("Will you resign in this game?");
+		dialog.set_secondary_text(msg);
+		int result =dialog.run();
+		return result == Gtk::RESPONSE_OK;
+}
+
 void MainWindow::on_lose_game()
 {
-
-    if(board->is_fight_to_robot()){
-        Gtk::MessageDialog dialog(*this, _("be lose"), false,
-                                  Gtk::MESSAGE_QUESTION,
-                                  Gtk::BUTTONS_OK_CANCEL);
-        Glib::ustring msg =_("Will you resign in this game?");
-        dialog.set_secondary_text(msg);
-        int result =dialog.run();
-        switch (result) {
-            case (Gtk::RESPONSE_OK): {
-                //m_refTreeModel->clear();
-                board->free_game();
-                set_status();
-                            break;
-                    }
-
-            case (Gtk::RESPONSE_CANCEL): {
-                //board->free_game(false);
-                //set_status();
-                            break;
-                    }
-
-            default: {
-                            break;
-                    }
-        }
-        return;
-    }
-    else if(board->is_network_game()){
-
-        Gtk::MessageDialog dialog(*this, _("be lose"), false,
-                                  Gtk::MESSAGE_QUESTION,
-                                  Gtk::BUTTONS_OK_CANCEL);
-        Glib::ustring msg =_("Will you resign in this game?");
-        dialog.set_secondary_text(msg);
-        int result =dialog.run();
-        switch (result) {
-            case (Gtk::RESPONSE_OK): {
-				board->send_to_socket("resign");
-				Gtk::MessageDialog dialog_info(*this, _("Information"), false);
-				Glib::ustring msg =_("You lose the game!");
-				dialog_info.set_secondary_text(msg);
-				dialog_info.run();
+		if (!board->game_in_progress())
+			return;
+		if (confirm_to_resign()) {
+				if(board->is_fight_to_robot()){
+						board->send_to_socket("resign");
+				}
 				board->free_game();
 				set_status();
-                            break;
-				}
-
-            case (Gtk::RESPONSE_CANCEL): {
-                //board->free_game(false);
-                //set_status();
-                            break;
-                    }
-
-            default: {
-                            break;
-                    }
-        }
-    }
+		}
 }
 
 /** draw 是打平局面的意思*/

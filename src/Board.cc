@@ -1017,6 +1017,7 @@ void Board::set_time(int _step_time, int _play_time)
 
 void Board::set_war_time(int _step_time,int _play_time)
 {
+	count_time = 0;
 	limit_count_time = _step_time;
 	red_time = _play_time*60;
 	black_time = _play_time* 60;

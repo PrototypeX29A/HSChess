@@ -28,7 +28,7 @@
 #include "gmchess.h"
 #include "Sound.h"
 
-#define version "0.29.6"
+#define version "0.30.0"
 
 Glib::ustring ui_info =
 "<ui>"
@@ -873,42 +873,40 @@ void MainWindow::set_information()
 void MainWindow::set_status()
 {
 	int f_status = board->get_status();
-	bool f_use=1;
-
 	switch(f_status){
 		case READ_STATUS:
-			btn_next->set_sensitive(f_use);
-			btn_prev->set_sensitive(f_use);
-			btn_start->set_sensitive(f_use);
-			btn_end->set_sensitive(f_use);
+			btn_next->set_sensitive(1);
+			btn_prev->set_sensitive(1);
+			btn_start->set_sensitive(1);
+			btn_end->set_sensitive(1);
 
-			btn_begin->set_sensitive(f_use);
-			btn_lose->set_sensitive(1-f_use);
-			btn_draw->set_sensitive(1-f_use);
-			btn_rue->set_sensitive(1-f_use);
+			btn_begin->set_sensitive(1);
+			btn_lose->set_sensitive(0);
+			btn_draw->set_sensitive(0);
+			btn_rue->set_sensitive(0);
 			break;
 		case FIGHT_STATUS:
 		case NETWORK_STATUS:
-			btn_next->set_sensitive(1-f_use);
-			btn_prev->set_sensitive(1-f_use);
-			btn_start->set_sensitive(1-f_use);
-			btn_end->set_sensitive(1-f_use);
+			btn_next->set_sensitive(0);
+			btn_prev->set_sensitive(0);
+			btn_start->set_sensitive(0);
+			btn_end->set_sensitive(0);
 
-			btn_begin->set_sensitive(1-f_use);
-			btn_lose->set_sensitive(f_use);
-			btn_draw->set_sensitive(f_use);
-			btn_rue->set_sensitive(f_use);
+			btn_begin->set_sensitive(0);
+			btn_lose->set_sensitive(1);
+			btn_draw->set_sensitive(1);
+			btn_rue->set_sensitive(1);
 			break;
 		case FREE_STATUS:
-			btn_next->set_sensitive(f_use);
-			btn_prev->set_sensitive(f_use);
-			btn_start->set_sensitive(f_use);
-			btn_end->set_sensitive(f_use);
+			btn_next->set_sensitive(1);
+			btn_prev->set_sensitive(1);
+			btn_start->set_sensitive(1);
+			btn_end->set_sensitive(1);
 
-			btn_begin->set_sensitive(f_use);
-			btn_lose->set_sensitive(1-f_use);
-			btn_draw->set_sensitive(1-f_use);
-			btn_rue->set_sensitive(1-f_use);
+			btn_begin->set_sensitive(1);
+			btn_lose->set_sensitive(0);
+			btn_draw->set_sensitive(0);
+			btn_rue->set_sensitive(0);
 			break;
 		default:
 			break;
@@ -927,9 +925,6 @@ void MainWindow::on_network_game(const std::string& me_name,const std::string& e
 	m_refTreeModel->clear();
 	board->start_network();
 	set_status();
-	btn_begin->set_sensitive(false);
-		
-	
 }
 
 void MainWindow::on_chanju_game()
@@ -973,54 +968,24 @@ void MainWindow::on_chanju_game()
 	m_refTreeModel->clear();
 	board->start_robot(false);
 	set_status();
-	btn_begin->set_sensitive(false);
 	//btn_chanjue->set_sensitive(false);
-
-
 }
 
 void MainWindow::on_begin_game()
 {
-	/** 已经在对战中，则询问是否开始新游戏*/
-	/** ask if start new game */
-	if(board->is_fight_to_robot()){
-
-		Gtk::MessageDialog dialog(*this, _("new game"), false,
-                                  Gtk::MESSAGE_QUESTION,
-                                  Gtk::BUTTONS_OK_CANCEL);
-		Glib::ustring msg =_("Will you  start a new game?");
-		dialog.set_secondary_text(msg);
-		int result = dialog.run();
-		switch (result) {
-			case (Gtk::RESPONSE_OK): {
-				m_refTreeModel->clear();
-				board->new_game();
-                	        break;
-                	}
-
-			case (Gtk::RESPONSE_CANCEL): {
-                	        break;
-                	}
-
-			default: {
-                	        break;
-                	}
+		if (board->game_in_progress()) {
+				if (confirm_to_resign()) {
+						if(board->is_fight_to_robot()){
+								board->send_to_socket("resign");
+						}
+						board->free_game();
+				} else {
+		 				return;
+				}
 		}
-		return;
-
-	}
-	else if(board->is_network_game()){
-		Gtk::MessageDialog dialog_info(*this, _("Information"), false);
-		Glib::ustring msg =_("You are play with network game,Please over it first!");
-		dialog_info.set_secondary_text(msg);
-		dialog_info.run();
-		return ;
-
-	}
-	m_refTreeModel->clear();
-	board->start_robot();
-	set_status();
-	btn_begin->set_sensitive(false);
+		m_refTreeModel->clear();
+		board->start_robot();
+		set_status();
 }
 
 bool MainWindow::confirm_to_resign() {

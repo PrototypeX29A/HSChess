@@ -453,8 +453,6 @@ bool Engine::mate()
 {
 	/** 没被将军，那就没事，有棋,bug是将/帅被困死 */
 	m_checked = checked_by();
-	if(!m_checked)
-		return false;
 	/** 
 	 * 轮到黑方走，则生成黑方所有的着法，并一一检测，如果都不能通过，
 	 * 则死棋,如果遇到一个能通过的，则马上返回false吧
@@ -495,7 +493,7 @@ bool Engine::mate()
 					break;
 				case RED_BISHOP:
 				case BLACK_BISHOP:
-					for(int k=0;i<4;i++){
+					for(int k=0;k<4;k++){
 						dst=src+BishopMoveTab[k];
 						if(in_board(dst)){
 							int mv = get_move(src,dst);
